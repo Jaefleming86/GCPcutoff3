@@ -109,3 +109,35 @@ resource "google_compute_firewall" "asia_firewall" {
 
     source_ranges = ["192.168.0.0/24"]
 }
+
+resource "google_compute_network_peering" "my_peering" {
+    name          = "my-peering"
+    network       = google_compute_network.europe_network.self_link
+    peer_network  = google_compute_network.peer_network.self_link
+}
+
+resource "google_compute_vpn_tunnel" "my_tunnel" {
+    name            = "my-tunnel"
+    peer_ip         = google_compute_vpn_gateway.peer_gateway.ip_address
+    shared_secret   = var.shared_secret
+    target_vpn_gateway = google_compute_vpn_gateway.my_gateway.self_link
+    vpn_gateway_interface = "vpn_gateway_interface"
+    local_traffic_selector = ["0.0.0.0/0"]
+}
+
+resource "google_compute_vpn_gateway" "my_gateway" {
+    name = "my-gateway"
+    network = google_compute_network.europe_network.self_link
+}
+
+resource "google_compute_vpn_gateway" "peer_gateway" {
+    name = "peer-gateway"
+    network = google_compute_network.peer_network.self_link
+}
+
+resource "google_compute_forwarding_rule" "my_forwarding_rule" {
+    name = "my-forwarding-rule"
+    target = google_compute_target_vpn_gateway.my_gateway.self_link
+    ip_protocol = "rdp"
+    port_range = "3389"
+}
