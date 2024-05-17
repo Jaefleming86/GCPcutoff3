@@ -106,7 +106,7 @@ resource "google_compute_network_peering" "europe_to_asia" {
 
 resource "google_compute_vpn_gateway" "mygateway1" {
     name = "mygateway1"
-    network = google_compute_network.europenetwork.self_link
+    network = google_compute_network.asianetwork.self_link
 }
 
 resource "google_compute_vpn_gateway" "mygateway2" {
@@ -114,13 +114,20 @@ resource "google_compute_vpn_gateway" "mygateway2" {
     network = google_compute_network.europenetwork.self_link
 }
 
-resource "google_compute_vpn_tunnel" "my_tunnel1" {
-    name                  = "my-tunnel1"
-    peer_ip               = "191.167.177.0"
-    shared_secret         = var.shared_secret
-    target_vpn_gateway    = google_compute_vpn_gateway.mygateway1.self_link
-    local_traffic_selector = ["0.0.0.0/0"]
-    depends_on = [google_compute_forwarding_rule.esp_rule, google_compute_forwarding_rule.udp_500_rule]
+
+resource "google_compute_vpn_tunnel" "mytunnel1" {
+    name            = "my-tunnel1"
+    target_vpn_gateway = google_compute_vpn_gateway.mygateway1.self_link
+    peer_ip         = google_compute_address.asia_vpn_address.address
+    shared_secret   = var.shared_secret
+    ike_version    = 2
+    local_traffic_selector = ["10.105.10.0/24"]
+    remote_traffic_selector = ["192.168.2.0/24"]
+    depends_on = [
+        google_compute_forwarding_rule.udp_500_rule,
+        google_compute_forwarding_rule.esp_rule,
+        google_compute_forwarding_rule.udp_4500
+        ]
 }
 
 resource "google_compute_vpn_gateway" "peergateway2" {
@@ -128,30 +135,65 @@ resource "google_compute_vpn_gateway" "peergateway2" {
     network = google_compute_network.asianetwork.self_link
 }
 
-resource "google_compute_vpn_tunnel" "my_tunnel2" {
+resource "google_compute_vpn_tunnel" "mytunnel2" {
     name            = "my-tunnel2"
-    peer_ip         = "191.167.177.0"
-    shared_secret   = var.shared_secret
     target_vpn_gateway = google_compute_vpn_gateway.mygateway2.self_link
-    local_traffic_selector = ["0.0.0.0/0"]
-    depends_on = [google_compute_forwarding_rule.esp_rule, google_compute_forwarding_rule.udp_500_rule]
+    peer_ip         = google_compute_address.asia_vpn_address.address
+    shared_secret   = var.shared_secret
+    ike_version    = 2
+    local_traffic_selector = ["10.105.10.0/24"]
+    remote_traffic_selector = ["192.168.2.0/24"]
+    depends_on = [
+        google_compute_forwarding_rule.udp_500_rule,
+        google_compute_forwarding_rule.esp_rule,
+        google_compute_forwarding_rule.udp_4500,
+        ]
 }
 
+resource "google_compute_forwarding_rule" "udp_4500" {
+    name        = "udp-4500-rule"
+    target      = google_compute_vpn_gateway.mygateway2.self_link
+    ip_protocol = "UDP"
+    port_range  = "4500-4500"
+    ip_address  = google_compute_address.europe_vpn_address.address
+}
 resource "google_compute_forwarding_rule" "udp_500_rule" {
     name        = "udp-500-rule"
     target      = google_compute_vpn_gateway.mygateway1.self_link
     ip_protocol = "UDP"
     port_range  = "500-500"
-    ip_address  = google_compute_address.vpn_address.address
+    ip_address  = google_compute_address.europe_vpn_address.address
 }
 
 resource "google_compute_forwarding_rule" "esp_rule" {
     name        = "esp-rule"
     target      = google_compute_vpn_gateway.mygateway2.self_link
     ip_protocol = "ESP"
-    ip_address  = google_compute_address.vpn_address.address
+    ip_address  = google_compute_address.europe_vpn_address.address
 }
-resource "google_compute_address" "vpn_address" {
-  name = "vpn-address"
+resource "google_compute_address" "europe_vpn_address" {
+  name = "europe-vpn-address"
     region = "europe-west1"
+}
+
+resource "google_compute_address" "asia_vpn_address" {
+  name = "asia-vpn-addres"
+    region = "asia-east1"
+}
+
+output "europe_network" {
+    value = google_compute_network.europenetwork.self_link
+
+}
+
+output "europe_subnet" {
+    value = google_compute_subnetwork.europe_subnet.self_link
+}
+
+output "public_ip" {
+    value = google_compute_address.europe_vpn_address.address
+}
+
+output "vpc" {
+    value = google_compute_network.europenetwork.self_link
 }
