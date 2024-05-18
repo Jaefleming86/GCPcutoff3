@@ -197,3 +197,150 @@ output "public_ip" {
 output "vpc" {
     value = google_compute_network.europenetwork.self_link
 }
+
+#####variables###
+
+variable "credentials_file" {
+    description = "Path to the Google Cloud credentials file"
+    default     = "jae-fleming-adfc3e3b9a68.json"
+}
+
+variable "project" {
+    description = "Google Cloud project name"
+    default     = "jae-fleming"
+}
+
+variable "region" {
+    description = "Google Cloud region"
+    default     = "europe-west1"
+}
+
+variable "instance_name" {
+    description = "Name of the compute instance"
+    default     = "europe-instance"
+}
+
+variable "machine_type" {
+    description = "Machine type for the compute instance"
+    default     = "e2-micro"
+}
+
+variable "zone" {
+    description = "Zone for the compute instance"
+    default     = "europe-west1-b"
+}
+
+variable "image" {
+    description = "Boot disk image for the compute instance"
+    default     = "debian-cloud/debian-10"
+}
+
+variable "europe_network_name" {
+    description = "Name of the Europe network"
+    default     = "europe-network"
+}
+
+variable "europe_subnet_name" {
+    description = "Name of the Europe subnet"
+    default     = "europe-subnet"
+}
+
+variable "europe_subnet_cidr" {
+    description = "CIDR range for the Europe subnet"
+    default     = "10.0.0.0/24"
+}
+
+variable "americas_network_name" {
+    description = "Name of the Americas network"
+    default     = "americas-network"
+}
+
+variable "americas_subnet_1_name" {
+    description = "Name of the Americas subnet 1"
+    default     = "americas-subnet-1"
+}
+
+variable "americas_subnet_1_cidr" {
+    description = "CIDR range for the Americas subnet 1"
+    default     = "172.16.0.0/24"
+}
+
+variable "americas_subnet_2_name" {
+    description = "Name of the Americas subnet 2"
+    default     = "americas-subnet-2"
+}
+
+variable "americas_subnet_2_cidr" {
+    description = "CIDR range for the Americas subnet 2"
+    default     = "172.16.1.0/24"
+}
+
+variable "asia_network_name" {
+    description = "Name of the Asia network"
+    default     = "asia-network"
+}
+
+variable "asia_subnet_name" {
+    description = "Name of the Asia subnet"
+    default     = "asia-subnet"
+}
+
+variable "asia_subnet_cidr" {
+    description = "CIDR range for the Asia subnet"
+    default     = "192.168.0.0/24"
+}
+
+variable "europe_firewall_name" {
+    description = "Name of the Europe firewall rule"
+    default     = "europe-firewall"
+}
+
+variable "europe_firewall_allow_icmp" {
+    description = "Allow ICMP traffic in the Europe firewall rule"
+    default     = true
+}
+
+variable "europe_firewall_allow_tcp" {
+    description = "Allow TCP traffic on port 80 in the Europe firewall rule"
+    default     = true
+}
+
+variable "europe_firewall_source_ranges" {
+    description = "Source IP ranges for the Europe firewall rule"
+    default     = ["0.0.0.0/0"]
+}
+
+variable "americas_firewall_name" {
+    description = "Name of the Americas firewall rule"
+    default     = "americas-firewall"
+}
+
+variable "americas_firewall_allow_tcp" {
+    description = "Allow TCP traffic on port 80 in the Americas firewall rule"
+    default     = true
+}
+
+variable "americas_firewall_source_ranges" {
+    description = "Source IP ranges for the Americas firewall rule"
+    default     = ["172.16.1.0/24", "172.16.2.0/24"]
+}
+
+variable "asia_firewall_name" {
+    description = "Name of the Asia firewall rule"
+    default     = "asia-firewall"
+}
+
+variable "asia_firewall_allow_tcp" {
+    description = "Allow TCP traffic on port 3389 in the Asia firewall rule"
+    default     = true
+}
+
+variable "asia_firewall_source_ranges" {
+    description = "Source IP ranges for the Asia firewall rule"
+    default     = ["192.168.0.0/24"]
+}
+
+    variable "shared_secret" {
+        description = "The shared secret for the VPN connection"
+        default     = "kevinissaa"
+    }
